@@ -1,5 +1,5 @@
-mod concatenated_substrings;
-use concatenated_substrings::Solution;
+mod concatenated_words;
+use concatenated_words::Solution;
 pub fn main() {
     let ref_words = vec!["rfgve", "gve", "v", "e", "g"];
     let words = ref_words.into_iter().map(|s| s.to_owned()).collect();
