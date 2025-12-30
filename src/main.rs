@@ -1,8 +1,10 @@
-mod rectangle_area;
-use rectangle_area::Solution;
+mod concatenated_substrings;
+use concatenated_substrings::Solution;
 pub fn main() {
-    let rectangles = vec![vec![0, 0, 2, 2], vec![1, 0, 2, 3], vec![1, 0, 3, 1]];
-    // let rectangles = vec![vec![0, 0, 1000000000, 1000000000]];
-    let res = Solution::rectangle_area(rectangles);
-    println!("{}", res);
+    let ref_words = vec!["rfgve", "gve", "v", "e", "g"];
+    let words = ref_words.into_iter().map(|s| s.to_owned()).collect();
+    println!(
+        "{:?}",
+        Solution::find_all_concatenated_words_in_a_dict(words)
+    );
 }
