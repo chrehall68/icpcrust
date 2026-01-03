@@ -1,5 +1,6 @@
-mod add_operators;
-use add_operators::Solution;
+mod self_crossing;
+use self_crossing::Solution;
 pub fn main() {
-    println!("{:?}", Solution::add_operators("232".to_owned(), 8));
+    let distance = vec![2, 1, 1, 2];
+    println!("{}", Solution::is_self_crossing(distance));
 }
