@@ -1,4 +1,8 @@
-use std::ops::{Add, Mul, Sub};
+use std::{
+    collections::HashMap,
+    hash::Hash,
+    ops::{Add, Mul, Sub},
+};
 
 // ==============================
 // ModNum section
@@ -42,6 +46,13 @@ impl ModNum {
             new_vals[i] = Self::modinv_helper(new_vals[i], MODS[i]);
         }
         ModNum { vals: new_vals }
+    }
+}
+impl Hash for ModNum {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        for i in 0..self.vals.len() {
+            self.vals[i].hash(state);
+        }
     }
 }
 impl Mul for ModNum {
@@ -90,62 +101,24 @@ impl Sub for ModNum {
     }
 }
 // ==============================
-// Trie section
-// ==============================
-type NodeId = usize;
-struct TrieNode {
-    to: [Option<NodeId>; 26],
-    idxs: Vec<usize>,
-}
-impl TrieNode {
-    pub fn new() -> Self {
-        TrieNode {
-            to: [None; 26],
-            idxs: Vec::new(),
-        }
-    }
-}
-struct Trie {
-    // rooted at 0
-    nodes: Vec<TrieNode>,
-}
-impl Trie {
-    const ROOT: usize = 0;
-    pub fn new() -> Self {
-        let root = TrieNode::new();
-        Trie { nodes: vec![root] }
-    }
-
-    pub fn insert(&mut self, word: &str, word_idx: usize) {
-        let mut cur = Trie::ROOT;
-        for b in word.as_bytes() {
-            let key = (*b - b'a') as usize;
-            if let None = self.nodes[cur].to[key] {
-                self.nodes[cur].to[key] = Some(self.nodes.len());
-                self.nodes.push(TrieNode::new());
-            }
-            cur = self.nodes[cur].to[key].unwrap();
-        }
-        self.nodes[cur].idxs.push(word_idx);
-    }
-}
-
-// ==============================
 // Algorithm section
 // ==============================
 pub struct Solution;
 impl Solution {
     pub fn palindrome_pairs(words: Vec<String>) -> Vec<Vec<i32>> {
         // build tries
-        let mut root = Trie::new();
-        let mut rev_root = Trie::new();
+        const RADIX: i64 = 27;
+        let mut idxs = HashMap::new();
         for (i, word) in words.iter().enumerate() {
-            root.insert(&word, i);
-            rev_root.insert(&word.chars().rev().collect::<String>(), i);
+            let mut hash = ModNum::new(0);
+            for b in word.as_bytes() {
+                let key = (*b - b'a') as i64 + 1;
+                hash = hash * RADIX + key;
+            }
+            idxs.entry(hash).or_insert(Vec::new()).push(i);
         }
         // consider each word
         let mut result = Vec::new();
-        const RADIX: i64 = 27;
         for (word_idx, word) in words.into_iter().enumerate() {
             // rolling hash to compare sections in O(1) time
             // prefix_hash[i] = hash of word[0..i] exclusive
@@ -163,25 +136,17 @@ impl Solution {
             }
             // so now check if this word can act as the first part
             // ie if this word is L + R where L_rev in words and R is a palindrome
-            let mut rev_idx = Some(0);
             let mut shifter = ModNum::new(RADIX).pow(word.len());
             let inv = ModNum::new(RADIX).modinv();
+            let mut other_shifter = ModNum::new(1);
             for r_start in 0..=word.len() {
                 let r_prefix_hash = prefix_hash[word.len()] - prefix_hash[r_start] * shifter;
                 let r_suffix_rev_hash = suffix_rev_hash[r_start];
                 let r_is_palindrome = r_prefix_hash == r_suffix_rev_hash;
-                // move forward in the rev tree
-                if r_start > 0
-                    && let Some(actual_idx) = rev_idx
-                {
-                    let key = (word.as_bytes()[r_start - 1] - b'a') as usize;
-                    rev_idx = rev_root.nodes[actual_idx].to[key];
-                }
+                let l_rev = suffix_rev_hash[0] - suffix_rev_hash[r_start] * other_shifter;
                 // output
-                if let Some(actual_idx) = rev_idx
-                    && r_is_palindrome
-                {
-                    for other_idx in rev_root.nodes[actual_idx].idxs.iter() {
+                if r_is_palindrome && let Some(others) = idxs.get(&l_rev) {
+                    for other_idx in others.iter() {
                         // this word + other_word = palindrome
                         if *other_idx != word_idx {
                             result.push(vec![word_idx as i32, *other_idx as i32]);
@@ -190,26 +155,17 @@ impl Solution {
                 }
                 // advance
                 shifter = shifter * inv;
+                other_shifter = other_shifter * RADIX;
             }
             // mirror case for if word = L + R and there is R_rev in words
-            let mut root_idx = Some(0);
             shifter = ModNum::new(RADIX).pow(word.len());
             for l_end in (1..=word.len()).rev() {
                 let l_prefix_hash = prefix_hash[l_end];
                 let l_suffix_rev_hash = suffix_rev_hash[0] - suffix_rev_hash[l_end] * shifter;
                 let l_is_palindrome = l_prefix_hash == l_suffix_rev_hash;
-                // move forward in the regular tree
-                if l_end < word.len()
-                    && let Some(actual_idx) = root_idx
-                {
-                    let key = (word.as_bytes()[l_end] - b'a') as usize;
-                    root_idx = root.nodes[actual_idx].to[key];
-                }
                 // output
-                if let Some(actual_idx) = root_idx
-                    && l_is_palindrome
-                {
-                    for other_idx in root.nodes[actual_idx].idxs.iter() {
+                if l_is_palindrome && let Some(others) = idxs.get(&suffix_rev_hash[l_end]) {
+                    for other_idx in others.iter() {
                         // this other_word + this_word = palindrome
                         result.push(vec![*other_idx as i32, word_idx as i32]);
                     }
