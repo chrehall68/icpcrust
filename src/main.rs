@@ -1,6 +1,9 @@
-mod self_crossing;
-use self_crossing::Solution;
+mod palindromic_pairs;
+use palindromic_pairs::Solution;
 pub fn main() {
-    let distance = vec![2, 1, 1, 2];
-    println!("{}", Solution::is_self_crossing(distance));
+    let words = vec!["abcd", "dcba", "lls", "s", "sssll"]
+        .into_iter()
+        .map(|s| s.to_owned())
+        .collect();
+    println!("{:?}", Solution::palindrome_pairs(words));
 }
