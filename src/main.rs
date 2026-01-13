@@ -1,10 +1,23 @@
-mod maximum_robots;
-use maximum_robots::Solution;
+mod xor_after_queries;
+use xor_after_queries::Solution;
 pub fn main() {
-    let charge_times = vec![3, 6, 1, 3, 4];
-    let running_costs = vec![2, 1, 3, 4, 5];
-    println!(
-        "{}",
-        Solution::maximum_robots(charge_times, running_costs, 25)
-    );
+    let nums = vec![551, 78, 927];
+    let queries = vec![
+        vec![2, 2, 3, 10],
+        vec![2, 2, 3, 1],
+        vec![0, 0, 1, 7],
+        vec![2, 2, 2, 9],
+        vec![2, 2, 3, 12],
+        vec![1, 2, 2, 1],
+        vec![0, 1, 3, 6],
+        vec![1, 1, 1, 8],
+        vec![2, 2, 3, 6],
+        vec![0, 1, 2, 6],
+        vec![0, 2, 2, 14],
+        vec![2, 2, 2, 20],
+        vec![2, 2, 1, 5],
+        vec![2, 2, 2, 20],
+        vec![0, 2, 2, 2],
+    ];
+    println!("{}", Solution::xor_after_queries(nums, queries));
 }
