@@ -1,7 +1,7 @@
-mod special_cht;
-use special_cht::Solution;
+mod equalize_string;
+use equalize_string::Solution;
 fn main() {
-    let nums = vec![20, 41, 13, 32];
-    let cost = vec![14, 12, 7, 31];
-    println!("{}", Solution::minimum_cost(nums, cost, 15));
+    let s = "11010".to_owned();
+    let k = 4;
+    println!("{}", Solution::min_operations(s, k));
 }
