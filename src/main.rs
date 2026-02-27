@@ -1,7 +1,6 @@
-mod equalize_string;
-use equalize_string::Solution;
+mod min_reverse_operations;
+use min_reverse_operations::Solution;
 fn main() {
-    let s = "11010".to_owned();
-    let k = 4;
-    println!("{}", Solution::min_operations(s, k));
+    let banned = vec![1, 2];
+    println!("{:?}", Solution::min_reverse_operations(4, 0, banned, 4));
 }
