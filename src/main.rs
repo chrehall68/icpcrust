@@ -1,6 +1,7 @@
-mod maximum_cyclic_partition_score;
-use maximum_cyclic_partition_score::Solution;
+mod almost_equal;
+use almost_equal::Solution;
 fn main() {
-    let nums = vec![7, 2, 4, 5, 11, 6, 1, 0];
-    println!("{}", Solution::maximum_score(nums, 3));
+    let s = "deeeeddde".to_owned();
+    let p = "eddd".to_owned();
+    println!("{}", Solution::min_starting_index(s, p));
 }
