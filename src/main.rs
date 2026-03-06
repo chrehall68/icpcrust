@@ -1,7 +1,7 @@
-mod almost_equal;
-use almost_equal::Solution;
+mod palindromic_tree;
+use palindromic_tree::Solution;
 fn main() {
-    let s = "deeeeddde".to_owned();
-    let p = "eddd".to_owned();
-    println!("{}", Solution::min_starting_index(s, p));
+    let parent = vec![-1, 0, 0, 1, 1, 2];
+    let s = "acaabc".to_owned();
+    println!("{}", Solution::count_palindrome_paths(parent, s));
 }
